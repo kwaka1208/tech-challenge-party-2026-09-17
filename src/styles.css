@@ -250,3 +250,53 @@ h1 { margin: 0; font-size: clamp(31px, 3vw, 43px); line-height: 1.3; font-weight
   .fullscreen-button strong { display: none; }
   .sky-card:fullscreen .fullscreen-button { right: 22px; }
 }
+
+/* Observation environment */
+.conditions-panel { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.condition-card { min-width: 0; padding: 13px 14px; border: 1px solid rgba(210, 227, 237, .1); background: rgba(7, 22, 38, .62); }
+.condition-heading { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 7px; }
+.condition-heading > span { color: var(--teal); font-size: 13px; }
+.condition-heading h3 { margin: 0; color: #9fb0be; font-size: 10px; font-weight: 600; }
+.condition-heading strong { padding: 3px 6px; color: #88a4ad; border: 1px solid rgba(109, 171, 182, .22); border-radius: 10px; font-size: 7px; font-weight: 600; }
+.condition-card.status-estimated .condition-heading strong { color: #d8aa8f; border-color: rgba(239, 168, 142, .26); }
+.condition-card.status-unavailable .condition-heading strong, .condition-card.status-error .condition-heading strong { color: #c58f83; border-color: rgba(239, 168, 142, .2); }
+.condition-value { min-height: 28px; margin: 10px 0 0; color: #b7c5ce; font-size: 9px; line-height: 1.55; }
+.condition-message { margin: 5px 0 0; color: #62778b; font-size: 8px; line-height: 1.55; }
+.condition-card details { margin-top: 8px; color: #5e7285; font-size: 8px; line-height: 1.5; }
+.condition-card summary { width: max-content; color: #71899b; cursor: pointer; }
+.condition-card details p { margin: 5px 0; }
+.condition-card details a { color: #789eaa; text-decoration: none; }
+.condition-card details a:hover { color: #b6d4d9; }
+
+@media (max-width: 1120px) {
+  .conditions-panel { grid-template-columns: 1fr; }
+  .condition-value { min-height: 0; }
+}
+
+@media (max-width: 800px) {
+  .conditions-panel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .conditions-panel { grid-template-columns: 1fr; }
+}
+
+/* Controls consolidated below the sky */
+.observation-panel { position: relative; z-index: 1; margin-top: 12px; }
+.conditions-controls { padding: 14px 16px 10px; border: 1px solid rgba(210, 227, 237, .1); background: rgba(7, 22, 38, .74); }
+.conditions-controls-heading { display: flex; align-items: baseline; gap: 11px; }
+.conditions-controls-heading span { color: var(--coral); font-size: 7px; font-weight: 700; letter-spacing: .16em; }
+.conditions-controls-heading h3 { margin: 0; color: #a9b9c5; font-size: 11px; font-weight: 600; }
+.conditions-control-groups { margin-top: 8px; }
+.conditions-control-group { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; min-height: 39px; border-top: 1px solid var(--line); }
+.conditions-control-group > p { margin: 0; color: #64798d; font-size: 8px; letter-spacing: .04em; }
+.conditions-switches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 20px; }
+.panel-switch-row { min-width: 0; }
+.condition-card.status-off { opacity: .68; }
+.condition-card.status-off .condition-heading strong { color: #8c98a5; border-color: rgba(210, 227, 237, .16); }
+
+@media (max-width: 620px) {
+  .conditions-control-group { grid-template-columns: 1fr; padding: 8px 0; }
+  .conditions-control-group > p { margin-bottom: 3px; }
+  .conditions-switches { grid-template-columns: 1fr; }
+}

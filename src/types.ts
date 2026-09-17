@@ -10,6 +10,9 @@ export interface DisplayOptions {
   constellations: boolean;
   labels: boolean;
   planets: boolean;
+  weather: boolean;
+  lightPollution: boolean;
+  terrain: boolean;
 }
 
 export interface StarRecord {
@@ -31,6 +34,67 @@ export interface SkyPoint {
   kind: 'star' | 'sun' | 'moon' | 'planet';
 }
 
+export interface DataProvenance {
+  source: string;
+  sourceUrl: string;
+  resolution: string;
+  availableFrom: string;
+  observedAt?: string;
+  isEstimated: boolean;
+  note: string;
+}
+
+export interface WeatherConditions {
+  cloudCover: number;
+  relativeHumidity: number;
+  precipitation: number;
+  visibility?: number;
+  limitingMagnitude: number;
+  provenance: DataProvenance;
+}
+
+export interface LightPollutionConditions {
+  radiance: number;
+  bortleClass: number;
+  limitingMagnitude: number;
+  provenance: DataProvenance;
+}
+
+export interface HorizonSample {
+  azimuth: number;
+  altitude: number;
+}
+
+export interface TerrainProfile {
+  observerElevation: number;
+  samples: HorizonSample[];
+  provenance: DataProvenance;
+}
+
+export interface ObservationConditions {
+  weather?: WeatherConditions;
+  lightPollution?: LightPollutionConditions;
+  terrain?: TerrainProfile;
+}
+
+export type ConditionStatus = 'loading' | 'available' | 'estimated' | 'unavailable' | 'error';
+
+export interface ConditionState<T> {
+  status: ConditionStatus;
+  data?: T;
+  message: string;
+}
+
+export interface EnvironmentState {
+  weather: ConditionState<WeatherConditions>;
+  lightPollution: ConditionState<LightPollutionConditions>;
+  terrain: ConditionState<TerrainProfile>;
+}
+
+export type ConditionResult<T> =
+  | { status: 'available' | 'estimated'; data: T; message: string }
+  | { status: 'unavailable'; message: string };
+
 export interface ConstellationRecord {
   id: string;
   name: string;
@@ -44,6 +108,7 @@ export interface SkyModel {
   moonIllumination: number;
   moonPhase: number;
   limitingMagnitude: number;
+  conditions: ObservationConditions;
 }
 
 export interface LocationSearchResult {

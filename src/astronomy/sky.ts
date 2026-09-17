@@ -1,6 +1,6 @@
 import { Body, Equator, Horizon, Illumination, MoonPhase, Observer, SiderealTime } from 'astronomy-engine';
 import { CATALOG_STARS } from '../data/catalog';
-import type { ObservationLocation, SkyModel, SkyPoint } from '../types';
+import type { ObservationConditions, ObservationLocation, SkyModel, SkyPoint } from '../types';
 
 const DEG = Math.PI / 180;
 const RAD = 180 / Math.PI;
@@ -86,15 +86,26 @@ function naturalLimitingMagnitude(sunAltitude: number, moonAltitude: number, moo
   return Math.max(3.8, 6.5 - (moonAltitude > 0 ? moonLight * 1.35 : 0));
 }
 
-export function calculateSky(date: Date, location: ObservationLocation, requestedMagnitude: number): SkyModel {
-  const observer = new Observer(location.latitude, location.longitude, location.elevation);
+export function calculateSky(
+  date: Date,
+  location: ObservationLocation,
+  requestedMagnitude: number,
+  conditions: ObservationConditions = {},
+): SkyModel {
+  const elevation = conditions.terrain?.observerElevation ?? location.elevation;
+  const observer = new Observer(location.latitude, location.longitude, elevation);
   const bodies = bodyPoints(date, observer);
   const sunAltitude = bodies.find((body) => body.kind === 'sun')?.altitude ?? -90;
   const moonAltitude = bodies.find((body) => body.kind === 'moon')?.altitude ?? -90;
   const moonPhase = MoonPhase(date);
   const moonIllumination = (1 - Math.cos(moonPhase * DEG)) / 2;
   const selectedLimit = Math.max(1, Math.min(6.5, requestedMagnitude));
-  const limit = Math.min(selectedLimit, naturalLimitingMagnitude(sunAltitude, moonAltitude, moonIllumination));
+  const limit = Math.min(
+    selectedLimit,
+    naturalLimitingMagnitude(sunAltitude, moonAltitude, moonIllumination),
+    conditions.weather?.limitingMagnitude ?? Number.POSITIVE_INFINITY,
+    conditions.lightPollution?.limitingMagnitude ?? Number.POSITIVE_INFINITY,
+  );
 
   return {
     stars: starPoints(date, observer, limit),
@@ -103,6 +114,7 @@ export function calculateSky(date: Date, location: ObservationLocation, requeste
     moonIllumination,
     moonPhase,
     limitingMagnitude: limit,
+    conditions,
   };
 }
 

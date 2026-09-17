@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { horizonAltitudeAt, isPointVisible } from '../astronomy/horizon';
 import { CONSTELLATIONS } from '../data/stars';
 import type { DisplayOptions, SkyModel, SkyPoint } from '../types';
 
@@ -32,9 +33,12 @@ export function SkyCanvas({ sky, options }: SkyCanvasProps) {
     if (!canvas) return;
     const context = canvas.getContext('2d');
     if (!context) return;
-    const visibleStars = sky.stars.filter((star) => star.altitude >= 0).sort((a, b) => b.magnitude - a.magnitude);
+    const terrain = sky.conditions.terrain;
+    const weather = sky.conditions.weather;
+    const lightPollution = sky.conditions.lightPollution;
+    const visibleStars = sky.stars.filter((star) => isPointVisible(star, terrain)).sort((a, b) => b.magnitude - a.magnitude);
     const namedStars = visibleStars.filter((star) => star.name);
-    const visibleBodies = sky.bodies.filter((body) => body.altitude >= 0);
+    const visibleBodies = sky.bodies.filter((body) => isPointVisible(body, terrain));
 
     const draw = () => {
       const rect = canvas.getBoundingClientRect();
@@ -72,6 +76,16 @@ export function SkyCanvas({ sky, options }: SkyCanvasProps) {
         const angle = (point.azimuth - azimuthOffsetRef.current) * DEG;
         return { x: center.x + Math.sin(angle) * distance, y: center.y - Math.cos(angle) * distance };
       };
+
+      if (night && lightPollution) {
+        const strength = Math.max(0, Math.min(1, (lightPollution.bortleClass - 1) / 8));
+        const glow = context.createRadialGradient(center.x, center.y, horizonRadius * .18, center.x, center.y, horizonRadius);
+        glow.addColorStop(0, 'rgba(135, 153, 161, 0)');
+        glow.addColorStop(.62, `rgba(178, 140, 105, ${strength * .08})`);
+        glow.addColorStop(1, `rgba(222, 151, 96, ${strength * .34})`);
+        context.fillStyle = glow;
+        context.fillRect(center.x - horizonRadius, center.y - horizonRadius, horizonRadius * 2, horizonRadius * 2);
+      }
 
       for (const star of visibleStars) {
         const point = project(star);
@@ -153,6 +167,42 @@ export function SkyCanvas({ sky, options }: SkyCanvasProps) {
             context.fillText(body.name, point.x + radius + 6, point.y + 3);
           }
         }
+      }
+
+      if (weather && weather.cloudCover > 2) {
+        const cloudOpacity = Math.min(.76, weather.cloudCover / 100 * .68 + Math.min(.12, weather.precipitation * .025));
+        for (let index = 0; index < 7; index += 1) {
+          const angle = (index * 137.5 + 18) * DEG;
+          const distance = horizonRadius * (.18 + (index % 3) * .2);
+          const x = center.x + Math.sin(angle) * distance;
+          const y = center.y - Math.cos(angle) * distance;
+          const cloud = context.createRadialGradient(x, y, 0, x, y, horizonRadius * .5);
+          cloud.addColorStop(0, `rgba(184, 196, 201, ${cloudOpacity * .3})`);
+          cloud.addColorStop(.45, `rgba(132, 151, 163, ${cloudOpacity * .17})`);
+          cloud.addColorStop(1, 'rgba(95, 115, 130, 0)');
+          context.fillStyle = cloud;
+          context.fillRect(center.x - horizonRadius, center.y - horizonRadius, horizonRadius * 2, horizonRadius * 2);
+        }
+      }
+
+      if (terrain?.samples.length) {
+        context.beginPath();
+        context.arc(center.x, center.y, horizonRadius * 1.02, 0, Math.PI * 2);
+        for (let azimuth = 0; azimuth <= 360; azimuth += 2) {
+          const altitude = Math.max(0, horizonAltitudeAt(azimuth, terrain));
+          const distance = ((90 - altitude) / 90) * horizonRadius * zoomRef.current;
+          const angle = (azimuth - azimuthOffsetRef.current) * DEG;
+          const x = center.x + Math.sin(angle) * distance;
+          const y = center.y - Math.cos(angle) * distance;
+          if (azimuth === 0) context.moveTo(x, y);
+          else context.lineTo(x, y);
+        }
+        context.closePath();
+        context.fillStyle = 'rgba(3, 12, 19, .94)';
+        context.fill('evenodd');
+        context.strokeStyle = 'rgba(115, 143, 148, .42)';
+        context.lineWidth = 1;
+        context.stroke();
       }
 
       context.restore();

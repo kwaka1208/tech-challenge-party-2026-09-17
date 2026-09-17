@@ -1,42 +1,28 @@
 import { useState, type FormEvent } from 'react';
 import { getCurrentCoordinates, resolveTimezone, reverseLocation, searchLocations } from '../services/location';
-import type { DisplayOptions, LocationSearchResult, ObservationLocation } from '../types';
+import type { LocationSearchResult, ObservationLocation } from '../types';
 
 interface ControlPanelProps {
   date: string;
   time: string;
   location: ObservationLocation;
   magnitudeLimit: number;
-  options: DisplayOptions;
   error: string;
   onDateChange: (value: string) => void;
   onTimeChange: (value: string) => void;
   onLocationChange: (value: ObservationLocation) => void;
   onMagnitudeLimitChange: (value: number) => void;
-  onOptionsChange: (value: DisplayOptions) => void;
-}
-
-function Switch({ checked, label, onChange }: { checked: boolean; label: string; onChange: (checked: boolean) => void }) {
-  return (
-    <label className="switch-row">
-      <span>{label}</span>
-      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
-      <span className="switch" aria-hidden="true"><span /></span>
-    </label>
-  );
 }
 
 export function ControlPanel({
-  date, time, location, magnitudeLimit, options, error,
-  onDateChange, onTimeChange, onLocationChange, onMagnitudeLimitChange, onOptionsChange,
+  date, time, location, magnitudeLimit, error,
+  onDateChange, onTimeChange, onLocationChange, onMagnitudeLimitChange,
 }: ControlPanelProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<LocationSearchResult[]>([]);
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
-
-  const updateOption = (key: keyof DisplayOptions, value: boolean) => onOptionsChange({ ...options, [key]: value });
 
   const handleSearch = async (event: FormEvent) => {
     event.preventDefault();
@@ -87,7 +73,7 @@ export function ControlPanel({
       <section className="control-section">
         <div className="section-heading"><span>01</span><h2>いつの空ですか？</h2></div>
         <div className="field-grid">
-          <label className="field"><span>生年月日</span><input type="date" min="1900-01-01" max="2100-12-31" value={date} onChange={(event) => onDateChange(event.target.value)} required /></label>
+          <label className="field"><span>日付</span><input type="date" min="1900-01-01" max="2100-12-31" value={date} onChange={(event) => onDateChange(event.target.value)} required /></label>
           <label className="field"><span>時刻</span><input type="time" value={time} onChange={(event) => onTimeChange(event.target.value)} required /></label>
         </div>
       </section>
@@ -124,12 +110,7 @@ export function ControlPanel({
           <div className="magnitude-heading"><span>最大表示等級</span><output>{magnitudeLimit.toFixed(1)} 等級</output></div>
           <input type="range" min="1" max="6.5" step="0.5" value={magnitudeLimit} onChange={(event) => onMagnitudeLimitChange(Number(event.target.value))} aria-label="表示する星の最大等級" />
           <div className="magnitude-scale"><span>明るい星だけ</span><span>暗い星まで</span></div>
-          <p>数値が大きいほど暗い星まで表示します。空の明るさや月光による肉眼の限界も反映されます。</p>
-        </div>
-        <div className="switches">
-          <Switch label="星座線" checked={options.constellations} onChange={(value) => updateOption('constellations', value)} />
-          <Switch label="天体名" checked={options.labels} onChange={(value) => updateOption('labels', value)} />
-          <Switch label="太陽・月・惑星" checked={options.planets} onChange={(value) => updateOption('planets', value)} />
+          <p>数値が大きいほど暗い星まで表示します。薄明・月光に加え、取得できた過去天候と光害による肉眼の限界も反映されます。</p>
         </div>
       </section>
       {error && <p className="form-error" role="alert">{error}</p>}
