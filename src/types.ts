@@ -117,3 +117,21 @@ export interface LocationSearchResult {
   latitude: number;
   longitude: number;
 }
+
+export interface DeviceSkyVector {
+  east: number;
+  north: number;
+  up: number;
+}
+
+export interface DeviceSkyView {
+  heading: number;
+  altitude: number;
+  forward: DeviceSkyVector;
+  right: DeviceSkyVector;
+  up: DeviceSkyVector;
+  accuracy?: number;
+}
+
+export type DeviceSensorStatus = 'idle' | 'requesting' | 'active' | 'denied' | 'unsupported' | 'error';
+export type GpsStatus = 'idle' | 'requesting' | 'active' | 'error';

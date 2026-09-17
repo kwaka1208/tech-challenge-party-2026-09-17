@@ -82,3 +82,23 @@ export function getCurrentCoordinates() {
     );
   });
 }
+
+export function watchCurrentCoordinates(
+  onPosition: (coordinates: { latitude: number; longitude: number; elevation: number }) => void,
+  onError: () => void,
+) {
+  if (!navigator.geolocation) {
+    queueMicrotask(onError);
+    return () => undefined;
+  }
+  const watchId = navigator.geolocation.watchPosition(
+    ({ coords }) => onPosition({
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      elevation: coords.altitude ?? 0,
+    }),
+    onError,
+    { enableHighAccuracy: true, timeout: 15_000, maximumAge: 30_000 },
+  );
+  return () => navigator.geolocation.clearWatch(watchId);
+}

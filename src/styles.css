@@ -300,3 +300,40 @@ h1 { margin: 0; font-size: clamp(31px, 3vw, 43px); line-height: 1.3; font-weight
   .conditions-control-group > p { margin-bottom: 3px; }
   .conditions-switches { grid-template-columns: 1fr; }
 }
+
+/* Mobile sensor-guided fullscreen sky */
+.device-tracking .sky-canvas { cursor: default; }
+.device-sky-hud { position: absolute; z-index: 6; inset: 0; pointer-events: none; color: #d8e6ea; }
+.device-status { position: absolute; top: max(28px, env(safe-area-inset-top)); left: max(24px, env(safe-area-inset-left)); display: grid; gap: 5px; padding: 8px 10px; border: 1px solid rgba(210, 227, 237, .14); border-radius: 5px; background: rgba(5, 16, 29, .66); backdrop-filter: blur(8px); font-size: 8px; letter-spacing: .04em; }
+.device-status span { color: #8193a4; }
+.device-status span.active { color: #9ed2c8; }
+.device-heading { position: absolute; top: max(28px, env(safe-area-inset-top)); left: 50%; display: grid; justify-items: center; transform: translateX(-50%); text-shadow: 0 2px 8px rgba(0, 0, 0, .65); }
+.device-heading strong { font-size: 17px; font-weight: 500; letter-spacing: .08em; }
+.device-heading span { margin-top: 2px; color: #91a7b5; font-size: 8px; }
+.device-location { position: absolute; right: max(24px, env(safe-area-inset-right)); bottom: max(91px, calc(env(safe-area-inset-bottom) + 86px)); color: rgba(202, 220, 226, .62); font-size: 8px; letter-spacing: .08em; }
+.sky-reticle { position: absolute; z-index: 5; left: 50%; top: 50%; width: 54px; height: 54px; transform: translate(-50%, -50%); border: 1px solid rgba(239, 168, 142, .68); border-radius: 50%; pointer-events: none; box-shadow: 0 0 24px rgba(239, 168, 142, .08); }
+.sky-reticle::before, .sky-reticle::after { content: ''; position: absolute; background: rgba(239, 168, 142, .78); }
+.sky-reticle::before { width: 14px; height: 1px; left: 19px; top: 26px; }
+.sky-reticle::after { width: 1px; height: 14px; left: 26px; top: 19px; }
+.sky-reticle span::before, .sky-reticle span::after { content: ''; position: absolute; top: 25px; width: 9px; height: 3px; border-top: 1px solid rgba(239, 168, 142, .68); }
+.sky-reticle span::before { left: -14px; }
+.sky-reticle span::after { right: -14px; }
+.target-card { position: absolute; z-index: 6; left: max(24px, env(safe-area-inset-left)); bottom: max(91px, calc(env(safe-area-inset-bottom) + 86px)); max-width: min(310px, calc(100vw - 48px)); padding: 12px 14px; border-left: 2px solid var(--coral); background: rgba(5, 16, 29, .78); backdrop-filter: blur(10px); pointer-events: none; }
+.target-card > span { display: block; color: var(--coral); font-size: 7px; letter-spacing: .16em; }
+.target-card strong { display: block; margin-top: 5px; color: #eef5f5; font-size: 18px; font-weight: 500; }
+.target-card p { margin: 5px 0 0; color: #91a7b5; font-size: 9px; }
+.device-fallback { position: absolute; z-index: 6; left: 50%; bottom: max(94px, calc(env(safe-area-inset-bottom) + 88px)); width: min(360px, calc(100% - 48px)); margin: 0; padding: 10px 12px; transform: translateX(-50%); color: #d5b19f; border: 1px solid rgba(239, 168, 142, .24); background: rgba(5, 16, 29, .78); text-align: center; font-size: 9px; line-height: 1.5; }
+
+@media (max-width: 1024px) and (hover: none) and (pointer: coarse) {
+  .sky-card:fullscreen { height: 100dvh; min-height: 100dvh; }
+  .sky-card:fullscreen .fullscreen-button { top: max(28px, env(safe-area-inset-top)); right: max(22px, env(safe-area-inset-right)); }
+  .sky-card:fullscreen .sky-stats { min-height: calc(76px + env(safe-area-inset-bottom)); padding-right: max(14px, env(safe-area-inset-right)); padding-bottom: env(safe-area-inset-bottom); padding-left: max(14px, env(safe-area-inset-left)); }
+  .sky-card:fullscreen .device-tracking + .sky-stats { background: linear-gradient(90deg, rgba(5, 16, 29, .86), rgba(8, 26, 43, .64)); }
+}
+
+@media (max-width: 620px) and (orientation: portrait) {
+  .device-status { top: max(74px, calc(env(safe-area-inset-top) + 62px)); }
+  .device-heading { top: max(30px, env(safe-area-inset-top)); }
+  .device-location { display: none; }
+  .target-card { right: max(18px, env(safe-area-inset-right)); left: max(18px, env(safe-area-inset-left)); max-width: none; }
+}

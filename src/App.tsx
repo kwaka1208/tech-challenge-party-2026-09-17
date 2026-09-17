@@ -5,7 +5,9 @@ import { formatObservationDate, localObservationToUtc } from './astronomy/time';
 import { ControlPanel } from './components/ControlPanel';
 import { ObservationConditionsPanel } from './components/ObservationConditionsPanel';
 import { SkyCanvas } from './components/SkyCanvas';
+import { useDeviceSkyView } from './hooks/useDeviceSkyView';
 import { fetchLightPollution } from './services/lightPollution';
+import { resolveTimezone, reverseLocation, watchCurrentCoordinates } from './services/location';
 import { fetchTerrainProfile } from './services/terrain';
 import { fetchHistoricalWeather } from './services/weather';
 import type {
@@ -13,6 +15,7 @@ import type {
   ConditionState,
   DisplayOptions,
   EnvironmentState,
+  GpsStatus,
   ObservationConditions,
   ObservationLocation,
 } from './types';
@@ -48,9 +51,11 @@ export default function App() {
   const [location, setLocation] = useState(initialLocation);
   const [magnitudeLimit, setMagnitudeLimit] = useState(6.5);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [gpsStatus, setGpsStatus] = useState<GpsStatus>('idle');
   const [environment, setEnvironment] = useState<EnvironmentState>(loadingEnvironment);
   const skyCardRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef(0);
+  const deviceSky = useDeviceSkyView(isFullscreen);
   const [options, setOptions] = useState<DisplayOptions>({
     constellations: true,
     labels: true,
@@ -131,10 +136,78 @@ export default function App() {
 
   const visibleStars = calculation.sky?.stars.filter((star) => isPointVisible(star, calculation.sky?.conditions.terrain)).length ?? 0;
 
+  useEffect(() => {
+    if (!isFullscreen || !deviceSky.isMobile) {
+      setGpsStatus('idle');
+      return;
+    }
+
+    let cancelled = false;
+    let resolving = false;
+    let lastAttemptAt = 0;
+    let lastAccepted: { latitude: number; longitude: number } | null = null;
+    setGpsStatus('requesting');
+
+    const stopWatching = watchCurrentCoordinates(async (coordinates) => {
+      const now = Date.now();
+      if (resolving || (lastAttemptAt > 0 && now - lastAttemptAt < 30_000)) return;
+      if (lastAccepted) {
+        const latitudeDistance = (coordinates.latitude - lastAccepted.latitude) * 111_320;
+        const longitudeDistance = (coordinates.longitude - lastAccepted.longitude)
+          * 111_320 * Math.cos(coordinates.latitude * Math.PI / 180);
+        if (Math.hypot(latitudeDistance, longitudeDistance) < 100) return;
+      }
+
+      resolving = true;
+      lastAttemptAt = now;
+      try {
+        const [name, timezone] = await Promise.all([
+          reverseLocation(coordinates.latitude, coordinates.longitude),
+          resolveTimezone(coordinates.latitude, coordinates.longitude),
+        ]);
+        if (cancelled) return;
+        lastAccepted = coordinates;
+        setLocation({ ...coordinates, name, timezone });
+        setGpsStatus('active');
+      } catch {
+        if (!cancelled) setGpsStatus('error');
+      } finally {
+        resolving = false;
+      }
+    }, () => {
+      if (!cancelled) setGpsStatus('error');
+    });
+
+    return () => {
+      cancelled = true;
+      stopWatching();
+    };
+  }, [isFullscreen, deviceSky.isMobile]);
+
+  const needsSensorPermission = deviceSky.isMobile
+    && deviceSky.requiresPermissionPrompt
+    && !deviceSky.permissionGranted
+    && deviceSky.status !== 'denied'
+    && deviceSky.status !== 'error';
+
   const toggleFullscreen = async () => {
     try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await skyCardRef.current?.requestFullscreen();
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return;
+      }
+      if (needsSensorPermission) {
+        await deviceSky.prepare();
+        return;
+      }
+
+      const element = skyCardRef.current;
+      if (!element) return;
+      const fullscreenRequest = element.requestFullscreen();
+      if (deviceSky.isMobile && !deviceSky.permissionGranted && !deviceSky.requiresPermissionPrompt) {
+        void deviceSky.prepare();
+      }
+      await fullscreenRequest;
     } catch {
       // Fullscreen may be blocked by the browser or embedding context.
     }
@@ -188,13 +261,26 @@ export default function App() {
               type="button"
               onClick={() => void toggleFullscreen()}
               disabled={!document.fullscreenEnabled}
-              aria-label={isFullscreen ? 'フルスクリーンを終了' : '星空をフルスクリーン表示'}
+              aria-label={isFullscreen
+                ? 'フルスクリーンを終了'
+                : needsSensorPermission
+                  ? '端末の方位センサーを許可'
+                  : '星空をフルスクリーン表示'}
+              title={needsSensorPermission ? '最初に方位センサーを許可してください' : undefined}
             >
-              <span aria-hidden="true">{isFullscreen ? '↙' : '↗'}</span>
-              <strong>{isFullscreen ? '終了' : '全画面'}</strong>
+              <span aria-hidden="true">{isFullscreen ? '↙' : needsSensorPermission ? '◎' : '↗'}</span>
+              <strong>{isFullscreen ? '終了' : needsSensorPermission ? 'センサー許可' : '全画面'}</strong>
             </button>
             {calculation.sky ? (
-              <SkyCanvas sky={calculation.sky} options={options} />
+              <SkyCanvas
+                sky={calculation.sky}
+                options={options}
+                mobileFullscreen={isFullscreen && deviceSky.isMobile}
+                deviceView={deviceSky.view}
+                sensorStatus={deviceSky.status}
+                gpsStatus={gpsStatus}
+                location={location}
+              />
             ) : (
               <div className="sky-error"><span>!</span><p>{calculation.error}</p></div>
             )}
