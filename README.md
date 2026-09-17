@@ -51,7 +51,7 @@ npm run data:stars  # NASA/HEASARCから恒星データを再生成
 
 - `https://kwaka1208.github.io/tech-challenge-party-2026-09-17/`
 
-初回のみ、GitHubリポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。その後は`main`ブランチへのpushで`.github/workflows/deploy-pages.yml`がビルドとデプロイを自動実行します。GitHubの **Actions → Deploy to GitHub Pages → Run workflow** から手動実行することもできます。
+初回のみ、GitHubリポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。その後は`main`または`kwaka1208`ブランチへのpushで`.github/workflows/deploy-pages.yml`がビルドとデプロイを自動実行します。ワークフローがデフォルトブランチへマージされた後は、GitHubの **Actions → Deploy to GitHub Pages → Run workflow** から手動実行することもできます。
 
 Viteの`base`は現在のリポジトリ名`tech-challenge-party-2026-09-17`に合わせています。リポジトリ名または公開先を変更する場合は`vite.config.ts`の`base`も更新してください。
 
