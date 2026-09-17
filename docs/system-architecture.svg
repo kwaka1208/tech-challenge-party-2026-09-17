@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="495" viewBox="0 0 880 495" role="img" aria-labelledby="title desc">
+  <title id="title">あの日の空 システム構成図</title>
+  <desc id="desc">利用者端末、GitHub Pages上のWebアプリ、外部データAPI、ビルド時の星表生成とデプロイの関係を示す構成図</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a1d34" />
+      <stop offset="0.55" stop-color="#071426" />
+      <stop offset="1" stop-color="#040b14" />
+    </linearGradient>
+    <linearGradient id="appPanel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#102c49" stop-opacity="0.96" />
+      <stop offset="1" stop-color="#091b30" stop-opacity="0.96" />
+    </linearGradient>
+    <linearGradient id="servicePanel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10283d" />
+      <stop offset="1" stop-color="#0a1b2d" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000814" flood-opacity="0.32" />
+    </filter>
+    <marker id="arrowRuntime" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#6dabb6" />
+    </marker>
+    <marker id="arrowBuild" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#efa88e" />
+    </marker>
+  </defs>
+
+  <rect width="880" height="495" fill="url(#bg)" />
+  <circle cx="760" cy="18" r="210" fill="#466f96" opacity="0.055" />
+  <circle cx="760" cy="18" r="260" fill="none" stroke="#86a8bd" stroke-opacity="0.05" />
+  <path d="M18 42V18H42 M838 18H862V42 M18 453V477H42 M838 477H862V453" fill="none" stroke="#a7c0cc" stroke-opacity="0.2" />
+
+  <g font-family="Hiragino Sans, Yu Gothic, sans-serif">
+    <text x="28" y="34" fill="#edf4f7" font-size="21" font-weight="700">システム構成</text>
+    <text x="28" y="55" fill="#6f8398" font-size="9" letter-spacing="1.4">あの日の空｜BIRTHDAY SKY ARCHIVE</text>
+
+    <g transform="translate(636 28)" font-size="8">
+      <line x1="0" y1="0" x2="28" y2="0" stroke="#6dabb6" stroke-width="2" marker-end="url(#arrowRuntime)" />
+      <text x="38" y="3" fill="#90aab4">実行時通信</text>
+      <line x1="112" y1="0" x2="140" y2="0" stroke="#efa88e" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrowBuild)" />
+      <text x="150" y="3" fill="#c79b89">ビルド時</text>
+    </g>
+
+    <!-- Connection lines -->
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M198 214H235" stroke="#6dabb6" stroke-width="2" marker-end="url(#arrowRuntime)" />
+      <path d="M235 240H198" stroke="#6dabb6" stroke-width="1.4" stroke-opacity="0.55" marker-end="url(#arrowRuntime)" />
+      <path d="M625 210H647V143H665" stroke="#6dabb6" stroke-width="1.7" marker-end="url(#arrowRuntime)" />
+      <path d="M647 143V319" stroke="#6dabb6" stroke-width="1.2" stroke-opacity="0.55" />
+      <path d="M647 199H665 M647 255H665 M647 319H665" stroke="#6dabb6" stroke-width="1.7" marker-end="url(#arrowRuntime)" />
+      <path d="M308 414V392" stroke="#efa88e" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrowBuild)" />
+      <path d="M555 414V392" stroke="#efa88e" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrowBuild)" />
+    </g>
+
+    <!-- User device -->
+    <g filter="url(#shadow)">
+      <rect x="28" y="86" width="170" height="306" rx="12" fill="#091a2d" stroke="#6dabb6" stroke-opacity="0.3" />
+    </g>
+    <text x="48" y="114" fill="#9cc5ca" font-size="9" font-weight="700" letter-spacing="1.4">USER DEVICE</text>
+    <text x="48" y="137" fill="#edf4f7" font-size="16" font-weight="700">利用者端末</text>
+    <g transform="translate(48 156)">
+      <rect width="50" height="78" rx="8" fill="#102b43" stroke="#789fae" stroke-opacity="0.5" />
+      <rect x="6" y="9" width="38" height="55" rx="3" fill="#071426" />
+      <circle cx="25" cy="70" r="2.5" fill="#efa88e" />
+      <rect x="66" y="10" width="55" height="43" rx="4" fill="#102b43" stroke="#789fae" stroke-opacity="0.5" />
+      <path d="M61 59H127" stroke="#789fae" stroke-opacity="0.5" />
+      <path d="M78 59L72 69H116L110 59" fill="#102b43" stroke="#789fae" stroke-opacity="0.5" />
+      <text x="66" y="89" fill="#657d92" font-size="8">iPhone / PC</text>
+    </g>
+    <line x1="48" y1="264" x2="178" y2="264" stroke="#b5cbd5" stroke-opacity="0.11" />
+    <g fill="#aabac5" font-size="10">
+      <text x="48" y="287">● 日付・時刻</text>
+      <text x="48" y="308">● 観測地点</text>
+      <text x="48" y="329">● 表示条件</text>
+      <text x="48" y="350">● GPS・コンパス</text>
+    </g>
+    <text x="48" y="375" fill="#5f7488" font-size="8">HTTPS / Browser</text>
+
+    <!-- Web application -->
+    <g filter="url(#shadow)">
+      <rect x="235" y="72" width="390" height="320" rx="14" fill="url(#appPanel)" stroke="#adcbd3" stroke-opacity="0.3" />
+    </g>
+    <rect x="235" y="72" width="390" height="40" rx="14" fill="#153654" opacity="0.7" />
+    <path d="M235 98V112H625V98" fill="#153654" opacity="0.7" />
+    <circle cx="255" cy="92" r="3" fill="#efa88e" />
+    <circle cx="267" cy="92" r="3" fill="#6dabb6" />
+    <circle cx="279" cy="92" r="3" fill="#536e87" />
+    <text x="298" y="96" fill="#e7f0f3" font-size="13" font-weight="700">Web App on GitHub Pages</text>
+
+    <g>
+      <rect x="255" y="126" width="350" height="49" rx="8" fill="#0c2137" stroke="#6dabb6" stroke-opacity="0.28" />
+      <text x="271" y="147" fill="#8fbfc6" font-size="9" font-weight="700">REACT + TYPESCRIPT</text>
+      <text x="271" y="164" fill="#dbe7eb" font-size="11">入力UI・状態管理・部分障害制御</text>
+
+      <rect x="255" y="187" width="350" height="61" rx="8" fill="#0c2137" stroke="#6dabb6" stroke-opacity="0.28" />
+      <text x="271" y="208" fill="#8fbfc6" font-size="9" font-weight="700">SKY ENGINE</text>
+      <text x="271" y="225" fill="#dbe7eb" font-size="11">Astronomy Engine + 同梱BSC5P星表</text>
+      <text x="271" y="239" fill="#6f8799" font-size="8">地平座標・月相・限界等級・環境条件統合</text>
+
+      <rect x="255" y="260" width="168" height="78" rx="8" fill="#0c2137" stroke="#efa88e" stroke-opacity="0.28" />
+      <text x="271" y="282" fill="#d6a18a" font-size="9" font-weight="700">CANVAS 2D</text>
+      <text x="271" y="302" fill="#dbe7eb" font-size="10">全天星図</text>
+      <text x="271" y="318" fill="#6f8799" font-size="8">星・雲・光害・地形</text>
+
+      <rect x="437" y="260" width="168" height="78" rx="8" fill="#0c2137" stroke="#efa88e" stroke-opacity="0.28" />
+      <text x="453" y="282" fill="#d6a18a" font-size="9" font-weight="700">BROWSER APIs</text>
+      <text x="453" y="302" fill="#dbe7eb" font-size="10">GPS・コンパス</text>
+      <text x="453" y="318" fill="#6f8799" font-size="8">Fullscreen / Orientation</text>
+    </g>
+    <g fill="none" stroke="#6dabb6" stroke-width="1.2" stroke-opacity="0.45" marker-end="url(#arrowRuntime)">
+      <path d="M430 175V187" />
+      <path d="M430 248V256H339V260" />
+      <path d="M430 256H521V260" />
+    </g>
+    <rect x="255" y="351" width="350" height="23" rx="11.5" fill="#6dabb6" fill-opacity="0.08" stroke="#6dabb6" stroke-opacity="0.18" />
+    <text x="430" y="366" text-anchor="middle" fill="#7597a5" font-size="8">AbortController + request ID / APIごとの状態管理</text>
+
+    <!-- Runtime services -->
+    <g filter="url(#shadow)">
+      <rect x="665" y="72" width="187" height="320" rx="12" fill="url(#servicePanel)" stroke="#6dabb6" stroke-opacity="0.28" />
+    </g>
+    <text x="683" y="96" fill="#9cc5ca" font-size="9" font-weight="700" letter-spacing="1.3">RUNTIME APIs</text>
+    <text x="683" y="116" fill="#edf4f7" font-size="14" font-weight="700">外部データ</text>
+
+    <g>
+      <rect x="681" y="128" width="155" height="39" rx="7" fill="#0a1d30" stroke="#6dabb6" stroke-opacity="0.23" />
+      <text x="694" y="145" fill="#d5e3e7" font-size="9" font-weight="700">Nominatim / TimeAPI</text>
+      <text x="694" y="158" fill="#667e91" font-size="8">地名・タイムゾーン</text>
+
+      <rect x="681" y="184" width="155" height="39" rx="7" fill="#0a1d30" stroke="#6dabb6" stroke-opacity="0.23" />
+      <text x="694" y="201" fill="#d5e3e7" font-size="9" font-weight="700">Open-Meteo</text>
+      <text x="694" y="214" fill="#667e91" font-size="8">過去天候（1940〜）</text>
+
+      <rect x="681" y="240" width="155" height="39" rx="7" fill="#0a1d30" stroke="#6dabb6" stroke-opacity="0.23" />
+      <text x="694" y="257" fill="#d5e3e7" font-size="9" font-weight="700">NASA GIBS</text>
+      <text x="694" y="270" fill="#667e91" font-size="8">VIIRS Black Marble</text>
+
+      <rect x="681" y="296" width="155" height="47" rx="7" fill="#0a1d30" stroke="#6dabb6" stroke-opacity="0.23" />
+      <text x="694" y="314" fill="#d5e3e7" font-size="9" font-weight="700">Open-Meteo Elevation</text>
+      <text x="694" y="328" fill="#667e91" font-size="8">Copernicus DEM GLO-90</text>
+    </g>
+    <text x="683" y="369" fill="#536b7e" font-size="8">JSON / WMS PNG / HTTPS</text>
+
+    <!-- Build-time rows -->
+    <g filter="url(#shadow)">
+      <rect x="28" y="414" width="405" height="55" rx="10" fill="#0b1d2f" stroke="#efa88e" stroke-opacity="0.3" />
+      <rect x="453" y="414" width="399" height="55" rx="10" fill="#0b1d2f" stroke="#efa88e" stroke-opacity="0.3" />
+    </g>
+    <text x="45" y="435" fill="#d7a48d" font-size="8" font-weight="700" letter-spacing="1.2">STAR CATALOG BUILD</text>
+    <text x="45" y="455" fill="#dbe5e9" font-size="10">NASA HEASARC BSC5P</text>
+    <path d="M174 451H204" stroke="#efa88e" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowBuild)" />
+    <text x="214" y="455" fill="#9bafba" font-size="9">生成スクリプト</text>
+    <path d="M276 451H305" stroke="#efa88e" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowBuild)" />
+    <text x="315" y="455" fill="#9bafba" font-size="9">星表を同梱</text>
+
+    <text x="470" y="435" fill="#d7a48d" font-size="8" font-weight="700" letter-spacing="1.2">CI / DEPLOY</text>
+    <text x="470" y="455" fill="#dbe5e9" font-size="10">GitHub Actions</text>
+    <path d="M558 451H588" stroke="#efa88e" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowBuild)" />
+    <text x="598" y="455" fill="#9bafba" font-size="9">typecheck + Vite build</text>
+    <path d="M716 451H746" stroke="#efa88e" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowBuild)" />
+    <text x="756" y="455" fill="#9bafba" font-size="9">Pages</text>
+  </g>
+</svg>
