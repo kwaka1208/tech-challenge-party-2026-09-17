@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">あの日の空 — Birthday Sky</title>
+  <desc id="desc">生年月日・時刻・観測地点から、その瞬間の星空を再現するWebアプリ</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a1d34" />
+      <stop offset="0.52" stop-color="#071426" />
+      <stop offset="1" stop-color="#040b14" />
+    </linearGradient>
+    <radialGradient id="skyGlow" cx="50%" cy="42%" r="58%">
+      <stop offset="0" stop-color="#244462" stop-opacity="0.8" />
+      <stop offset="0.54" stop-color="#102a43" stop-opacity="0.48" />
+      <stop offset="1" stop-color="#06111f" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="starGlow">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="0.3" stop-color="#dceef5" stop-opacity="0.55" />
+      <stop offset="1" stop-color="#b6d6e2" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="horizon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6dabb6" stop-opacity="0.12" />
+      <stop offset="1" stop-color="#6dabb6" stop-opacity="0" />
+    </linearGradient>
+    <clipPath id="skyClip">
+      <circle cx="956" cy="315" r="268" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#background)" />
+  <circle cx="1022" cy="90" r="340" fill="#436b91" opacity="0.08" />
+  <circle cx="1022" cy="90" r="420" fill="none" stroke="#86a8bd" stroke-opacity="0.055" />
+  <circle cx="1022" cy="90" r="500" fill="none" stroke="#86a8bd" stroke-opacity="0.035" />
+
+  <!-- Fine technical frame -->
+  <path d="M34 66V34H66 M1134 34H1166V66 M34 564V596H66 M1134 596H1166V564" fill="none" stroke="#adc7d3" stroke-opacity="0.22" />
+  <path d="M56 108V92H72 M1128 522H1144V506" fill="none" stroke="#efa88e" stroke-opacity="0.75" />
+  <line x1="66" y1="596" x2="470" y2="596" stroke="#adc7d3" stroke-opacity="0.12" />
+  <text x="1144" y="588" text-anchor="end" fill="#536a80" font-family="Arial" font-size="9" letter-spacing="3">SKY ARCHIVE / 1900—2100</text>
+
+  <!-- Brand -->
+  <g transform="translate(78 62)">
+    <circle cx="18" cy="18" r="17" fill="none" stroke="#efa88e" stroke-opacity="0.72" />
+    <ellipse cx="18" cy="18" rx="25" ry="8" fill="none" stroke="#efa88e" stroke-opacity="0.48" transform="rotate(-22 18 18)" />
+    <path d="M18 10.2L19.7 16.3L25.8 18L19.7 19.7L18 25.8L16.3 19.7L10.2 18L16.3 16.3Z" fill="#efa88e" />
+    <circle cx="40" cy="8" r="2.2" fill="#efa88e" />
+  </g>
+  <text x="132" y="87" fill="#edf4f7" font-family="Arial Unicode MS" font-size="25" font-weight="700" letter-spacing="2.8">あの日の空</text>
+  <text x="132" y="108" fill="#708198" font-family="Arial" font-size="9" font-weight="600" letter-spacing="3.3">BIRTHDAY SKY ARCHIVE</text>
+
+  <!-- Main message -->
+  <text x="78" y="190" fill="#efa88e" font-family="Arial" font-size="11" font-weight="700" letter-spacing="4.2">YOUR SKY, THAT NIGHT</text>
+  <rect x="78" y="214" width="34" height="2" fill="#efa88e" />
+  <text x="78" y="275" fill="#edf4f7" font-family="Arial Unicode MS" font-size="47" font-weight="600" letter-spacing="-1.5">あの日、空には</text>
+  <text x="78" y="340" fill="#edf4f7" font-family="Arial Unicode MS" font-size="47" font-weight="600" letter-spacing="-1.5">何が見えていた？</text>
+  <text x="80" y="391" fill="#90a0b5" font-family="Arial Unicode MS" font-size="17" font-weight="400">生年月日・時刻・観測地点から、</text>
+  <text x="80" y="420" fill="#90a0b5" font-family="Arial Unicode MS" font-size="17" font-weight="400">その瞬間の星空を再現。</text>
+
+  <!-- Feature labels -->
+  <g font-family="Arial Unicode MS" font-size="11" font-weight="500">
+    <g transform="translate(78 471)">
+      <rect width="92" height="35" rx="17.5" fill="#6dabb6" fill-opacity="0.08" stroke="#6dabb6" stroke-opacity="0.28" />
+      <circle cx="17" cy="17.5" r="2.5" fill="#6dabb6" />
+      <text x="29" y="22" fill="#b7cbd1">過去天候</text>
+    </g>
+    <g transform="translate(180 471)">
+      <rect width="73" height="35" rx="17.5" fill="#6dabb6" fill-opacity="0.08" stroke="#6dabb6" stroke-opacity="0.28" />
+      <circle cx="17" cy="17.5" r="2.5" fill="#6dabb6" />
+      <text x="29" y="22" fill="#b7cbd1">光害</text>
+    </g>
+    <g transform="translate(263 471)">
+      <rect width="92" height="35" rx="17.5" fill="#6dabb6" fill-opacity="0.08" stroke="#6dabb6" stroke-opacity="0.28" />
+      <circle cx="17" cy="17.5" r="2.5" fill="#6dabb6" />
+      <text x="29" y="22" fill="#b7cbd1">地形遮蔽</text>
+    </g>
+  </g>
+
+  <!-- Celestial map -->
+  <g clip-path="url(#skyClip)">
+    <circle cx="956" cy="315" r="268" fill="#061526" />
+    <circle cx="956" cy="315" r="268" fill="url(#skyGlow)" />
+    <g fill="none" stroke="#a9c0ce" stroke-opacity="0.11">
+      <circle cx="956" cy="315" r="216" />
+      <circle cx="956" cy="315" r="156" />
+      <circle cx="956" cy="315" r="94" />
+      <ellipse cx="956" cy="315" rx="268" ry="91" />
+      <ellipse cx="956" cy="315" rx="268" ry="171" />
+      <path d="M688 315H1224 M956 47V583 M767 126L1145 504 M1145 126L767 504" />
+    </g>
+    <path d="M688 449C753 427 793 446 844 432C905 415 953 438 1000 421C1060 399 1110 427 1224 391V583H688Z" fill="url(#horizon)" />
+    <path d="M688 449C753 427 793 446 844 432C905 415 953 438 1000 421C1060 399 1110 427 1224 391" fill="none" stroke="#6dabb6" stroke-opacity="0.34" />
+
+    <!-- Constellation geometry -->
+    <g fill="none" stroke="#9db7c5" stroke-opacity="0.3" stroke-width="1.2">
+      <path d="M753 243L792 221L826 248L858 215L898 230L924 193" />
+      <path d="M796 348L841 328L881 356L916 327L950 351L997 308L1041 326" />
+      <path d="M902 136L948 166L990 143L1036 179L1078 158" />
+      <path d="M1023 250L1065 228L1102 253L1138 230L1171 263" />
+      <path d="M837 410L876 387L919 406L956 380L1001 401" />
+    </g>
+
+    <!-- Star glows -->
+    <g fill="url(#starGlow)">
+      <circle cx="792" cy="221" r="15" /><circle cx="858" cy="215" r="12" /><circle cx="924" cy="193" r="17" />
+      <circle cx="841" cy="328" r="11" /><circle cx="916" cy="327" r="14" /><circle cx="997" cy="308" r="13" />
+      <circle cx="948" cy="166" r="12" /><circle cx="1036" cy="179" r="16" /><circle cx="1102" cy="253" r="11" />
+      <circle cx="876" cy="387" r="10" /><circle cx="956" cy="380" r="13" />
+    </g>
+    <g fill="#e9f4f8">
+      <circle cx="753" cy="243" r="2" /><circle cx="792" cy="221" r="3.8" /><circle cx="826" cy="248" r="2.2" /><circle cx="858" cy="215" r="3" /><circle cx="898" cy="230" r="2.1" /><circle cx="924" cy="193" r="4.1" />
+      <circle cx="796" cy="348" r="1.8" /><circle cx="841" cy="328" r="3.1" /><circle cx="881" cy="356" r="2" /><circle cx="916" cy="327" r="3.4" /><circle cx="950" cy="351" r="2.2" /><circle cx="997" cy="308" r="3.4" /><circle cx="1041" cy="326" r="2" />
+      <circle cx="902" cy="136" r="2" /><circle cx="948" cy="166" r="3.2" /><circle cx="990" cy="143" r="2" /><circle cx="1036" cy="179" r="4" /><circle cx="1078" cy="158" r="2.4" />
+      <circle cx="1023" cy="250" r="2.2" /><circle cx="1065" cy="228" r="2" /><circle cx="1102" cy="253" r="3.2" /><circle cx="1138" cy="230" r="2" /><circle cx="1171" cy="263" r="2.5" />
+      <circle cx="837" cy="410" r="2" /><circle cx="876" cy="387" r="3" /><circle cx="919" cy="406" r="1.8" /><circle cx="956" cy="380" r="3.4" /><circle cx="1001" cy="401" r="2.1" />
+      <circle cx="734" cy="178" r="1.4" opacity="0.72" /><circle cx="776" cy="300" r="1.2" opacity="0.65" /><circle cx="816" cy="158" r="1.5" opacity="0.8" /><circle cx="865" cy="113" r="1.1" opacity="0.6" /><circle cx="973" cy="95" r="1.5" opacity="0.7" /><circle cx="1084" cy="106" r="1.2" opacity="0.7" /><circle cx="1140" cy="150" r="1.4" opacity="0.8" /><circle cx="1180" cy="340" r="1.2" opacity="0.7" /><circle cx="1125" cy="370" r="1.6" opacity="0.75" /><circle cx="1078" cy="428" r="1.2" opacity="0.65" /><circle cx="1026" cy="472" r="1.5" opacity="0.75" /><circle cx="926" cy="485" r="1.1" opacity="0.6" /><circle cx="783" cy="443" r="1.5" opacity="0.8" />
+    </g>
+
+    <!-- Reticle -->
+    <g fill="none" stroke="#efa88e">
+      <circle cx="956" cy="315" r="35" stroke-opacity="0.7" />
+      <circle cx="956" cy="315" r="5" stroke-opacity="0.9" />
+      <path d="M956 268V286 M956 344V362 M909 315H927 M985 315H1003" stroke-opacity="0.65" />
+    </g>
+    <circle cx="1098" cy="215" r="7" fill="#efa88e" opacity="0.92" />
+    <circle cx="1098" cy="215" r="15" fill="none" stroke="#efa88e" stroke-opacity="0.28" />
+    <text x="1119" y="219" fill="#d7b29f" font-family="Arial" font-size="9" letter-spacing="1.5">MARS</text>
+  </g>
+
+  <circle cx="956" cy="315" r="268" fill="none" stroke="#b8d1dd" stroke-opacity="0.22" />
+  <circle cx="956" cy="315" r="278" fill="none" stroke="#efa88e" stroke-opacity="0.12" stroke-dasharray="2 10" />
+  <path d="M956 29V48 M956 582V601 M670 315H689 M1223 315H1242" stroke="#efa88e" stroke-opacity="0.42" />
+  <text x="956" y="72" text-anchor="middle" fill="#7f95a7" font-family="Arial" font-size="10" font-weight="600" letter-spacing="3">NORTH</text>
+</svg>
