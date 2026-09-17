@@ -45,6 +45,16 @@ npm run data:stars  # NASA/HEASARCから恒星データを再生成
 
 通常の起動・ビルドではネットワークから星表を取得しません。生成済みデータをアプリへ同梱しています。
 
+### GitHub Pagesへのデプロイ
+
+公開先は次のURLです。
+
+- `https://kwaka1208.github.io/tech-challenge-party-2026-09-17/`
+
+初回のみ、GitHubリポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。その後は`main`ブランチへのpushで`.github/workflows/deploy-pages.yml`がビルドとデプロイを自動実行します。GitHubの **Actions → Deploy to GitHub Pages → Run workflow** から手動実行することもできます。
+
+Viteの`base`は現在のリポジトリ名`tech-challenge-party-2026-09-17`に合わせています。リポジトリ名または公開先を変更する場合は`vite.config.ts`の`base`も更新してください。
+
 ### 使用技術・データ
 
 - React 19 / TypeScript / Vite
