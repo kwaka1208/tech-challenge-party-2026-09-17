@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { DeviceSensorStatus, DeviceSkyVector, DeviceSkyView } from '../types';
+import type { DeviceHeadingSource, DeviceSensorStatus, DeviceSkyVector, DeviceSkyView } from '../types';
 
 interface PermissionAwareDeviceOrientationEvent {
   requestPermission?: () => Promise<'granted' | 'denied'>;
@@ -12,7 +12,7 @@ interface CompassDeviceOrientationEvent extends DeviceOrientationEvent {
 
 function detectMobileDevice() {
   return navigator.maxTouchPoints > 0
-    && window.matchMedia('(hover: none) and (pointer: coarse) and (max-width: 1024px)').matches;
+    && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 }
 
 function detectPermissionPrompt() {
@@ -47,7 +47,12 @@ function cross(left: DeviceSkyVector, right: DeviceSkyVector): DeviceSkyVector {
   });
 }
 
-function viewFromAxes(forward: DeviceSkyVector, right: DeviceSkyVector, accuracy?: number): DeviceSkyView {
+function viewFromAxes(
+  forward: DeviceSkyVector,
+  right: DeviceSkyVector,
+  source: DeviceHeadingSource,
+  accuracy?: number,
+): DeviceSkyView {
   const normalizedForward = normalizeVector(forward);
   const rightWithoutForward = {
     east: right.east - normalizedForward.east * dot(right, normalizedForward),
@@ -61,20 +66,27 @@ function viewFromAxes(forward: DeviceSkyVector, right: DeviceSkyVector, accuracy
     forward: normalizedForward,
     right: normalizedRight,
     up: cross(normalizedRight, normalizedForward),
+    source,
     accuracy,
   };
 }
 
-function orientationToView(event: CompassDeviceOrientationEvent): DeviceSkyView | null {
-  if (event.beta === null || event.gamma === null) return null;
+function orientationToView(
+  event: CompassDeviceOrientationEvent,
+  fromAbsoluteEvent: boolean,
+): DeviceSkyView | null {
+  if (!Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) return null;
 
   const compassHeading = event.webkitCompassHeading;
-  const alpha = Number.isFinite(compassHeading) ? 360 - (compassHeading as number) : event.alpha;
-  if (alpha === null) return null;
+  const hasWebkitHeading = Number.isFinite(compassHeading);
+  if (!fromAbsoluteEvent && !hasWebkitHeading && event.absolute !== true) return null;
 
-  const alphaRad = alpha * Math.PI / 180;
-  const betaRad = event.beta * Math.PI / 180;
-  const gammaRad = event.gamma * Math.PI / 180;
+  const alpha = hasWebkitHeading ? 360 - (compassHeading as number) : event.alpha;
+  if (!Number.isFinite(alpha)) return null;
+  const source: DeviceHeadingSource = hasWebkitHeading ? 'webkit-compass' : 'absolute-orientation';
+  const alphaRad = (alpha as number) * Math.PI / 180;
+  const betaRad = (event.beta as number) * Math.PI / 180;
+  const gammaRad = (event.gamma as number) * Math.PI / 180;
   const sinAlpha = Math.sin(alphaRad);
   const cosAlpha = Math.cos(alphaRad);
   const sinBeta = Math.sin(betaRad);
@@ -98,20 +110,22 @@ function orientationToView(event: CompassDeviceOrientationEvent): DeviceSkyView 
     up: -cosBeta * cosGamma,
   };
 
-  const screenAngle = (screen.orientation?.angle ?? 0) * Math.PI / 180;
+  const legacyOrientation = 'orientation' in window ? Number(window.orientation) : 0;
+  const screenAngle = (screen.orientation?.angle ?? (Number.isFinite(legacyOrientation) ? legacyOrientation : 0)) * Math.PI / 180;
   const right = {
     east: deviceX.east * Math.cos(screenAngle) - deviceY.east * Math.sin(screenAngle),
     north: deviceX.north * Math.cos(screenAngle) - deviceY.north * Math.sin(screenAngle),
     up: deviceX.up * Math.cos(screenAngle) - deviceY.up * Math.sin(screenAngle),
   };
   const accuracy = Number.isFinite(event.webkitCompassAccuracy) ? event.webkitCompassAccuracy : undefined;
-  return viewFromAxes(forward, right, accuracy);
+  return viewFromAxes(forward, right, source, accuracy);
 }
 
 export function useDeviceSkyView(active: boolean) {
   const [isMobile] = useState(detectMobileDevice);
   const [requiresPermissionPrompt] = useState(detectPermissionPrompt);
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [activationToken, setActivationToken] = useState(0);
   const [status, setStatus] = useState<DeviceSensorStatus>('idle');
   const [view, setView] = useState<DeviceSkyView | null>(null);
   const smoothedRef = useRef<DeviceSkyView | null>(null);
@@ -123,7 +137,11 @@ export function useDeviceSkyView(active: boolean) {
       setStatus('unsupported');
       return false;
     }
-    if (permissionGranted) return true;
+    if (permissionGranted) {
+      setStatus('requesting');
+      setActivationToken((current) => current + 1);
+      return true;
+    }
 
     setStatus('requesting');
     try {
@@ -136,6 +154,7 @@ export function useDeviceSkyView(active: boolean) {
         }
       }
       setPermissionGranted(true);
+      setActivationToken((current) => current + 1);
       return true;
     } catch {
       setStatus('error');
@@ -147,17 +166,35 @@ export function useDeviceSkyView(active: boolean) {
     if (!active || !isMobile || !permissionGranted) {
       setView(null);
       smoothedRef.current = null;
-      if (!active) setStatus((current) => current === 'active' ? 'idle' : current);
+      pendingRef.current = null;
+      if (!active) {
+        setStatus((current) => current === 'denied' || current === 'unsupported' || current === 'error' ? current : 'idle');
+      }
       return;
     }
 
+    let cancelled = false;
     let absoluteEventAt = 0;
+    let watchdog = 0;
+    const armWatchdog = () => {
+      window.clearTimeout(watchdog);
+      watchdog = window.setTimeout(() => {
+        if (cancelled) return;
+        smoothedRef.current = null;
+        pendingRef.current = null;
+        setView(null);
+        setStatus('error');
+      }, 5_000);
+    };
+    armWatchdog();
     const commit = (next: DeviceSkyView) => {
+      armWatchdog();
       const previous = smoothedRef.current;
       const smoothed = previous
         ? viewFromAxes(
           mixVector(previous.forward, next.forward, .2),
           mixVector(previous.right, next.right, .2),
+          next.source,
           next.accuracy,
         )
         : next;
@@ -166,19 +203,20 @@ export function useDeviceSkyView(active: boolean) {
       if (!frameRef.current) {
         frameRef.current = requestAnimationFrame(() => {
           frameRef.current = 0;
-          if (pendingRef.current) setView(pendingRef.current);
+          if (!cancelled && pendingRef.current) setView(pendingRef.current);
         });
       }
       setStatus('active');
     };
     const handleAbsolute = (rawEvent: Event) => {
+      const next = orientationToView(rawEvent as CompassDeviceOrientationEvent, true);
+      if (!next) return;
       absoluteEventAt = performance.now();
-      const next = orientationToView(rawEvent as CompassDeviceOrientationEvent);
-      if (next) commit(next);
+      commit(next);
     };
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (performance.now() - absoluteEventAt < 1_000) return;
-      const next = orientationToView(event as CompassDeviceOrientationEvent);
+      const next = orientationToView(event as CompassDeviceOrientationEvent, false);
       if (next) commit(next);
     };
 
@@ -186,12 +224,15 @@ export function useDeviceSkyView(active: boolean) {
     window.addEventListener('deviceorientationabsolute', handleAbsolute, true);
     window.addEventListener('deviceorientation', handleOrientation, true);
     return () => {
+      cancelled = true;
+      window.clearTimeout(watchdog);
       window.removeEventListener('deviceorientationabsolute', handleAbsolute, true);
       window.removeEventListener('deviceorientation', handleOrientation, true);
       cancelAnimationFrame(frameRef.current);
       frameRef.current = 0;
+      pendingRef.current = null;
     };
-  }, [active, isMobile, permissionGranted]);
+  }, [active, activationToken, isMobile, permissionGranted]);
 
   return {
     isMobile,

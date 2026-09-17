@@ -124,12 +124,15 @@ export interface DeviceSkyVector {
   up: number;
 }
 
+export type DeviceHeadingSource = 'webkit-compass' | 'absolute-orientation';
+
 export interface DeviceSkyView {
   heading: number;
   altitude: number;
   forward: DeviceSkyVector;
   right: DeviceSkyVector;
   up: DeviceSkyVector;
+  source: DeviceHeadingSource;
   accuracy?: number;
 }
 

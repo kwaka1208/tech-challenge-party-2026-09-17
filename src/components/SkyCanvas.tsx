@@ -15,6 +15,7 @@ interface SkyCanvasProps {
   sky: SkyModel;
   options: DisplayOptions;
   mobileFullscreen: boolean;
+  compassEnabled: boolean;
   deviceView: DeviceSkyView | null;
   sensorStatus: DeviceSensorStatus;
   gpsStatus: GpsStatus;
@@ -73,6 +74,7 @@ export function SkyCanvas({
   sky,
   options,
   mobileFullscreen,
+  compassEnabled,
   deviceView,
   sensorStatus,
   gpsStatus,
@@ -402,7 +404,7 @@ export function SkyCanvas({
       {mobileFullscreen && (
         <div className="device-sky-hud" aria-live="polite">
           <div className="device-status">
-            <span className={sensorStatus === 'active' ? 'active' : ''}>◉ {sensorMessage(sensorStatus)}</span>
+            <span className={compassEnabled && sensorStatus === 'active' ? 'active' : ''}>◉ {compassEnabled ? sensorMessage(sensorStatus) : 'コンパス追従OFF'}</span>
             <span className={gpsStatus === 'active' ? 'active' : ''}>⌖ {gpsMessage(gpsStatus)}</span>
           </div>
           {deviceView && (
@@ -424,7 +426,7 @@ export function SkyCanvas({
           <p>高度 {selectedTarget.altitude.toFixed(1)}° · 方位 {selectedTarget.azimuth.toFixed(1)}° · {selectedTarget.magnitude.toFixed(1)}等級</p>
         </div>
       )}
-      {mobileFullscreen && !deviceView && sensorStatus !== 'requesting' && (
+      {mobileFullscreen && compassEnabled && !deviceView && sensorStatus !== 'requesting' && (
         <p className="device-fallback">端末センサーを利用できないため、通常の星図を表示しています。</p>
       )}
     </div>

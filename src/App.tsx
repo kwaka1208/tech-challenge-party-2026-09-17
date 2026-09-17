@@ -51,11 +51,12 @@ export default function App() {
   const [location, setLocation] = useState(initialLocation);
   const [magnitudeLimit, setMagnitudeLimit] = useState(6.5);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [compassEnabled, setCompassEnabled] = useState(true);
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>('idle');
   const [environment, setEnvironment] = useState<EnvironmentState>(loadingEnvironment);
   const skyCardRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef(0);
-  const deviceSky = useDeviceSkyView(isFullscreen);
+  const deviceSky = useDeviceSkyView(isFullscreen && compassEnabled);
   const [options, setOptions] = useState<DisplayOptions>({
     constellations: true,
     labels: true,
@@ -70,6 +71,12 @@ export default function App() {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
+
+  useEffect(() => {
+    if (compassEnabled && (deviceSky.status === 'denied' || deviceSky.status === 'error' || deviceSky.status === 'unsupported')) {
+      setCompassEnabled(false);
+    }
+  }, [compassEnabled, deviceSky.status]);
 
   const observation = useMemo(() => {
     try {
@@ -137,7 +144,7 @@ export default function App() {
   const visibleStars = calculation.sky?.stars.filter((star) => isPointVisible(star, calculation.sky?.conditions.terrain)).length ?? 0;
 
   useEffect(() => {
-    if (!isFullscreen || !deviceSky.isMobile) {
+    if (!isFullscreen || !deviceSky.isMobile || !compassEnabled || !deviceSky.permissionGranted) {
       setGpsStatus('idle');
       return;
     }
@@ -182,9 +189,10 @@ export default function App() {
       cancelled = true;
       stopWatching();
     };
-  }, [isFullscreen, deviceSky.isMobile]);
+  }, [isFullscreen, compassEnabled, deviceSky.isMobile, deviceSky.permissionGranted]);
 
-  const needsSensorPermission = deviceSky.isMobile
+  const needsSensorPermission = compassEnabled
+    && deviceSky.isMobile
     && deviceSky.requiresPermissionPrompt
     && !deviceSky.permissionGranted
     && deviceSky.status !== 'denied'
@@ -211,6 +219,15 @@ export default function App() {
     } catch {
       // Fullscreen may be blocked by the browser or embedding context.
     }
+  };
+
+  const toggleCompass = async () => {
+    if (compassEnabled) {
+      setCompassEnabled(false);
+      return;
+    }
+    setCompassEnabled(true);
+    await deviceSky.prepare();
   };
 
   return (
@@ -271,12 +288,29 @@ export default function App() {
               <span aria-hidden="true">{isFullscreen ? '↙' : needsSensorPermission ? '◎' : '↗'}</span>
               <strong>{isFullscreen ? '終了' : needsSensorPermission ? 'センサー許可' : '全画面'}</strong>
             </button>
+            {isFullscreen && deviceSky.isMobile && (
+              <button
+                className={`compass-toggle${compassEnabled ? ' active' : ''}`}
+                type="button"
+                onClick={() => void toggleCompass()}
+                aria-pressed={compassEnabled}
+                aria-label={deviceSky.status === 'denied' || deviceSky.status === 'error'
+                  ? 'コンパス追従を再試行'
+                  : compassEnabled ? 'コンパス追従を停止' : 'コンパス追従を開始'}
+              >
+                <span aria-hidden="true">◎</span>
+                <strong>{deviceSky.status === 'denied' || deviceSky.status === 'error'
+                  ? 'コンパス再試行'
+                  : `コンパス ${compassEnabled ? 'ON' : 'OFF'}`}</strong>
+              </button>
+            )}
             {calculation.sky ? (
               <SkyCanvas
                 sky={calculation.sky}
                 options={options}
                 mobileFullscreen={isFullscreen && deviceSky.isMobile}
-                deviceView={deviceSky.view}
+                compassEnabled={compassEnabled}
+                deviceView={compassEnabled ? deviceSky.view : null}
                 sensorStatus={deviceSky.status}
                 gpsStatus={gpsStatus}
                 location={location}
