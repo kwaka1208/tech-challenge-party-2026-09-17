@@ -51,12 +51,12 @@ export default function App() {
   const [location, setLocation] = useState(initialLocation);
   const [magnitudeLimit, setMagnitudeLimit] = useState(6.5);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [compassEnabled, setCompassEnabled] = useState(true);
+  const [compassEnabled, setCompassEnabled] = useState(false);
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>('idle');
   const [environment, setEnvironment] = useState<EnvironmentState>(loadingEnvironment);
   const skyCardRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef(0);
-  const deviceSky = useDeviceSkyView(isFullscreen && compassEnabled);
+  const deviceSky = useDeviceSkyView(compassEnabled);
   const [options, setOptions] = useState<DisplayOptions>({
     constellations: true,
     labels: true,
@@ -144,7 +144,7 @@ export default function App() {
   const visibleStars = calculation.sky?.stars.filter((star) => isPointVisible(star, calculation.sky?.conditions.terrain)).length ?? 0;
 
   useEffect(() => {
-    if (!isFullscreen || !deviceSky.isMobile || !compassEnabled || !deviceSky.permissionGranted) {
+    if (!deviceSky.isMobile || !compassEnabled || !deviceSky.permissionGranted) {
       setGpsStatus('idle');
       return;
     }
@@ -189,14 +189,7 @@ export default function App() {
       cancelled = true;
       stopWatching();
     };
-  }, [isFullscreen, compassEnabled, deviceSky.isMobile, deviceSky.permissionGranted]);
-
-  const needsSensorPermission = compassEnabled
-    && deviceSky.isMobile
-    && deviceSky.requiresPermissionPrompt
-    && !deviceSky.permissionGranted
-    && deviceSky.status !== 'denied'
-    && deviceSky.status !== 'error';
+  }, [compassEnabled, deviceSky.isMobile, deviceSky.permissionGranted]);
 
   const toggleFullscreen = async () => {
     try {
@@ -204,18 +197,7 @@ export default function App() {
         await document.exitFullscreen();
         return;
       }
-      if (needsSensorPermission) {
-        await deviceSky.prepare();
-        return;
-      }
-
-      const element = skyCardRef.current;
-      if (!element) return;
-      const fullscreenRequest = element.requestFullscreen();
-      if (deviceSky.isMobile && !deviceSky.permissionGranted && !deviceSky.requiresPermissionPrompt) {
-        void deviceSky.prepare();
-      }
-      await fullscreenRequest;
+      await skyCardRef.current?.requestFullscreen();
     } catch {
       // Fullscreen may be blocked by the browser or embedding context.
     }
@@ -278,17 +260,12 @@ export default function App() {
               type="button"
               onClick={() => void toggleFullscreen()}
               disabled={!document.fullscreenEnabled}
-              aria-label={isFullscreen
-                ? 'フルスクリーンを終了'
-                : needsSensorPermission
-                  ? '端末の方位センサーを許可'
-                  : '星空をフルスクリーン表示'}
-              title={needsSensorPermission ? '最初に方位センサーを許可してください' : undefined}
+              aria-label={isFullscreen ? 'フルスクリーンを終了' : '星空をフルスクリーン表示'}
             >
-              <span aria-hidden="true">{isFullscreen ? '↙' : needsSensorPermission ? '◎' : '↗'}</span>
-              <strong>{isFullscreen ? '終了' : needsSensorPermission ? 'センサー許可' : '全画面'}</strong>
+              <span aria-hidden="true">{isFullscreen ? '↙' : '↗'}</span>
+              <strong>{isFullscreen ? '終了' : '全画面'}</strong>
             </button>
-            {isFullscreen && deviceSky.isMobile && (
+            {deviceSky.isMobile && (
               <button
                 className={`compass-toggle${compassEnabled ? ' active' : ''}`}
                 type="button"
@@ -308,7 +285,7 @@ export default function App() {
               <SkyCanvas
                 sky={calculation.sky}
                 options={options}
-                mobileFullscreen={isFullscreen && deviceSky.isMobile}
+                deviceMode={deviceSky.isMobile && compassEnabled}
                 compassEnabled={compassEnabled}
                 deviceView={compassEnabled ? deviceSky.view : null}
                 sensorStatus={deviceSky.status}

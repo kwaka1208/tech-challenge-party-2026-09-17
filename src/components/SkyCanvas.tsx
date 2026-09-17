@@ -14,7 +14,7 @@ import type {
 interface SkyCanvasProps {
   sky: SkyModel;
   options: DisplayOptions;
-  mobileFullscreen: boolean;
+  deviceMode: boolean;
   compassEnabled: boolean;
   deviceView: DeviceSkyView | null;
   sensorStatus: DeviceSensorStatus;
@@ -73,7 +73,7 @@ function kindName(kind: SkyPoint['kind']) {
 export function SkyCanvas({
   sky,
   options,
-  mobileFullscreen,
+  deviceMode,
   compassEnabled,
   deviceView,
   sensorStatus,
@@ -127,7 +127,7 @@ export function SkyCanvas({
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
       context.clearRect(0, 0, width, height);
 
-      const view = mobileFullscreen ? deviceViewRef.current : null;
+      const view = deviceMode ? deviceViewRef.current : null;
       const tracking = Boolean(view);
       const axes = view ? cameraAxes(view) : null;
       const center = { x: width / 2, y: height / 2 - (tracking ? 0 : 8) };
@@ -362,9 +362,9 @@ export function SkyCanvas({
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = 0;
     };
-  }, [sky, options, mobileFullscreen]);
+  }, [sky, options, deviceMode]);
 
-  const tracking = mobileFullscreen && Boolean(deviceView);
+  const tracking = deviceMode && Boolean(deviceView);
 
   return (
     <div className={`sky-canvas-wrap${tracking ? ' device-tracking' : ''}`}>
@@ -400,8 +400,8 @@ export function SkyCanvas({
           <button type="button" onClick={() => { zoomRef.current = 1; azimuthOffsetRef.current = 0; requestDraw(); }} aria-label="表示をリセット">↺</button>
         </div>
       )}
-      {!mobileFullscreen && <p className="canvas-hint"><span>↔</span> ドラッグして空を見渡す</p>}
-      {mobileFullscreen && (
+      {!deviceMode && <p className="canvas-hint"><span>↔</span> ドラッグして空を見渡す</p>}
+      {deviceMode && (
         <div className="device-sky-hud" aria-live="polite">
           <div className="device-status">
             <span className={compassEnabled && sensorStatus === 'active' ? 'active' : ''}>◉ {compassEnabled ? sensorMessage(sensorStatus) : 'コンパス追従OFF'}</span>
@@ -426,7 +426,7 @@ export function SkyCanvas({
           <p>高度 {selectedTarget.altitude.toFixed(1)}° · 方位 {selectedTarget.azimuth.toFixed(1)}° · {selectedTarget.magnitude.toFixed(1)}等級</p>
         </div>
       )}
-      {mobileFullscreen && compassEnabled && !deviceView && sensorStatus !== 'requesting' && (
+      {deviceMode && compassEnabled && !deviceView && sensorStatus !== 'requesting' && (
         <p className="device-fallback">端末センサーを利用できないため、通常の星図を表示しています。</p>
       )}
     </div>

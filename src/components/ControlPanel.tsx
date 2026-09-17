@@ -14,6 +14,23 @@ interface ControlPanelProps {
   onMagnitudeLimitChange: (value: number) => void;
 }
 
+function todayInTimezone(timezone: string) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+    const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? '';
+    return `${value('year')}-${value('month')}-${value('day')}`;
+  } catch {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
+    return local.toISOString().slice(0, 10);
+  }
+}
+
 export function ControlPanel({
   date, time, location, magnitudeLimit, error,
   onDateChange, onTimeChange, onLocationChange, onMagnitudeLimitChange,
@@ -73,7 +90,13 @@ export function ControlPanel({
       <section className="control-section">
         <div className="section-heading"><span>01</span><h2>いつの空ですか？</h2></div>
         <div className="field-grid">
-          <label className="field"><span>日付</span><input type="date" min="1900-01-01" max="2100-12-31" value={date} onChange={(event) => onDateChange(event.target.value)} required /></label>
+          <label className="field">
+            <span>日付</span>
+            <span className="date-input-wrap">
+              <input type="date" min="1900-01-01" max="2100-12-31" value={date} onChange={(event) => onDateChange(event.target.value)} required />
+              <button type="button" onClick={() => onDateChange(todayInTimezone(location.timezone))} aria-label="日付を観測地点の今日に設定">今日</button>
+            </span>
+          </label>
           <label className="field"><span>時刻</span><input type="time" value={time} onChange={(event) => onTimeChange(event.target.value)} required /></label>
         </div>
       </section>
