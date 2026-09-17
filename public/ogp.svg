@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
-  <title id="title">あの日の空 — Birthday Sky</title>
+  <title id="title">あの日の空 あの日、空には 何が見えていた？</title>
   <desc id="desc">生年月日・時刻・観測地点から、その瞬間の星空を再現するWebアプリ</desc>
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
